@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block scripts %}
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.5.8/angular.js"></script>
+  <!-- the angular http-post-fix module corrects the format for POST-ed data -->
+  <script src="static/angular-post-fix.js"></script>
+  <script>
+    window.csrf_token = '{{ csrf_token() }}';
+    angular.module('app', ['http-post-fix'])
+        .controller('ExampleCtrl', function ($log, $scope, $http, $window) {
+          $scope.data = {
+            text: 'Try me!',
+            csrf_token: $window.csrf_token,
+            result: 'Submit First!'
+          };
+
+          $scope.submit = function () {
+            $scope.data.result = "Loading...";
+            $http.post('/my-ajax-endpoint', (function(obj){return {'text':obj.text, 'csrf_token':obj.csrf_token};})($scope.data)).then(function (result) {
+              if (result.data.success) {
+                $scope.data.result = result.data.result;
+              } else {
+                $scope.data.result = ('Error: ' + result.data.message);
+              }
+              $log.log(result);
+            }, function (err) {
+              $scope.data.result = ('Error communicating with server.');
+              $log.log(err);
+            });
+          }
+        });
+  </script>
+{% endblock %}
+
+{% block content %}
+  <h1>Flask/Ajax Example (angular)</h1>
+  <!-- <p><a href="{{ url_for('home') }}">View the jQuery version</a></p> -->
+  {% if submitted %}
+    <p>{{ message }}</p>
+  {% endif %}
+
+  {% raw %}
+  <div ng-app="app">
+    <div ng-controller="ExampleCtrl">
+      <form novalidate="novalidate">
+        <label for="text">Text:</label> <input type="text" id="text" ng-model="data.text">
+        <input type="submit" value="Go" ng-click="submit()">
+      </form>
+      <div>
+        Result: <p ng-bind="data.result"></p>
+      </div>
+    </div>
+  </div>
+  {% endraw %}
+{% endblock %}

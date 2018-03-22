@@ -1,0 +1,28 @@
+{% extends "bootstrap/base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}    
+{% block title %}Import Music from Youtube{% endblock %}
+
+{% block navbar %}
+<div class="navbar navbar-fixed-top">
+    <!-- ... -->
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="container"> 
+    <div class="jumbotron">
+        <h1>Youtube to Google Music</h1>
+        <p>
+        {{ wtf.quick_form(linkform) }}
+        OR
+        <form method="post" enctype="multipart/form-data">
+                {{ songform.hidden_tag() }}
+
+                    {{ songform.song}}
+        {{ songform.submit }}
+        </form>
+        </p>
+    </div>
+</div>
+
+{% endblock %}
